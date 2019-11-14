@@ -32,13 +32,23 @@ end
 end
 
 @cenum cutensorAlgo_t::Int32 begin
-    CUTENSOR_ALGO_TGETT = -7
-    CUTENSOR_ALGO_GETT = -6
-    CUTENSOR_ALGO_LOG_TENSOR_OP = -5
-    CUTENSOR_ALGO_LOG = -4
-    CUTENSOR_ALGO_TTGT_TENSOR_OP = -3
+    CUTENSOR_ALGO_GETT = -4
+    CUTENSOR_ALGO_TGETT = -3
     CUTENSOR_ALGO_TTGT = -2
     CUTENSOR_ALGO_DEFAULT = -1
+end
+
+@cenum cutensorComputeType_t::Int32 begin
+    CUTENSOR_R_MIN_16F = 1
+    CUTENSOR_C_MIN_16F = 2
+    CUTENSOR_R_MIN_32F = 4
+    CUTENSOR_C_MIN_32F = 8
+    CUTENSOR_R_MIN_64F = 16
+    CUTENSOR_C_MIN_64F = 32
+    CUTENSOR_R_MIN_8U  = 64
+    CUTENSOR_R_MIN_32U = 128
+    CUTENSOR_R_MIN_8I  = 256
+    CUTENSOR_R_MIN_32I = 512
 end
 
 @cenum cutensorWorksizePreference_t::UInt32 begin
@@ -50,6 +60,6 @@ end
 
 const cutensorHandle_t = Ptr{Cvoid}
 const cutensorTensorDescriptor_t = Ptr{Cvoid}
-const CUTENSOR_MAJOR = 0
-const CUTENSOR_MINOR = 2
-const CUTENSOR_PATCH = 2
+const CUTENSOR_MAJOR = 1
+const CUTENSOR_MINOR = 0
+const CUTENSOR_PATCH = 0

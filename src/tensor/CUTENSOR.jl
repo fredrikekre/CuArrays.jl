@@ -48,7 +48,7 @@ function handle()
         _handle[] = get!(_handles, active_context[]) do
             context = active_context[]
             handle = cutensorCreate()
-            atexit(()->CUDAdrv.isvalid(context) && cutensorDestroy(handle))
+            atexit(()->CUDAdrv.isvalid(context))
             handle
         end
     end

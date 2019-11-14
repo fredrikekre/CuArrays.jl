@@ -103,8 +103,8 @@ function __init__()
         # library compatibility
         if has_cutensor()
             ver = CUTENSOR.version()
-            if ver.major != 0 || ver.minor != 2
-                error("CuArrays.jl only supports CUTENSOR 0.2")
+            if ver.major != 1 || ver.minor != 0
+                error("CuArrays.jl only supports CUTENSOR 1.0")
             end
         end
 
