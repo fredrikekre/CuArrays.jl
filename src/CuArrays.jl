@@ -123,7 +123,7 @@ function __init__()
             CUSPARSE._handle[] = C_NULL
             CURAND._generator[] = nothing
             CUDNN._handle[] = C_NULL
-            CUTENSOR._handle[] = C_NULL
+            CUTENSOR._handle[] = nothing
         end
         push!(CUDAnative.device!_listeners, callback)
 

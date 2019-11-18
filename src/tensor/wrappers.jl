@@ -26,16 +26,16 @@ is_binary(op::cutensorOperator_t) =
     (op ∈ (CUTENSOR_OP_ADD, CUTENSOR_OP_MUL, CUTENSOR_OP_MAX, CUTENSOR_OP_MIN))
 
 mutable struct CuTensorDescriptor
-    desc::cutensorTensorDescriptor_t
+    desc::Ref{cutensorTensorDescriptor_t}
 
     function CuTensorDescriptor(a; size = size(a), strides = strides(a), eltype = eltype(a),
                                    op = CUTENSOR_OP_IDENTITY)
         sz = collect(Int64, size)
         st = collect(Int64, strides)
         desc = Ref{cutensorTensorDescriptor_t}()
-        cutensorCreateTensorDescriptor(desc, length(sz), sz, st,
-                                       cudaDataType(eltype), op)
-        obj = new(desc[])
+        cutensorInitTensorDescriptor(desc, length(sz), sz, st,
+                                     cudaDataType(eltype), op)
+        obj = new(desc)
         finalizer(destroy!, obj)
         return obj
     end
