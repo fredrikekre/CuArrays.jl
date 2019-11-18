@@ -105,7 +105,8 @@ mutable struct State
     edits::Vector{Edit}
 end
 
-# insert `@check` before each `ccall` when it returns a checked type
+# insert `@check` before each `ccall` when it returns a checked type,
+# and make it a `@runtime_ccall`
 const checked_types = [
     "cublasStatus_t",
     "cudnnStatus_t",
@@ -115,13 +116,15 @@ const checked_types = [
     "cusparseStatus_t",
     "cutensorStatus_t",
 ]
-function insert_check(x, state)
+function rewrite_ccall(x, state)
     if x isa CSTParser.EXPR && x.typ == CSTParser.Call && x.args[1].val == "ccall"
         # get the ccall return type
         rv = x.args[5]
 
         if rv.val in checked_types
-            push!(state.edits, Edit(state.offset, "@check "))
+            push!(state.edits, Edit(state.offset, "@check @runtime_"))
+        else
+            push!(state.edits, Edit(state.offset, "@runtime_"))
         end
     end
 end
@@ -287,7 +290,7 @@ function wrap_at_comma(x, state, indent, offset, column)
 end
 
 function indent_ccall(x, state)
-    if x isa CSTParser.EXPR && x.typ == CSTParser.Call && x.args[1].val == "ccall"
+    if x isa CSTParser.EXPR && x.typ == CSTParser.MacroCall && x.args[1].args[2].val == "runtime_ccall"
         # figure out how much to indent by looking at where the expr starts
         line = findlast(y -> state.offset >= y[2], state.lines) # index, not the actual number
         line_indent, line_offset = state.lines[line]
@@ -349,7 +352,7 @@ function process(name, headers...; kwargs...)
         ast = CSTParser.parse(text, true)
 
         state.offset = 0
-        pass(ast, state, insert_check)
+        pass(ast, state, rewrite_ccall)
 
         state.offset = 0
         pass(ast, state, (x,state)->rewrite_pointers(x,state,headers))
