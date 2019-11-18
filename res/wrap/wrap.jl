@@ -9,7 +9,7 @@ using Crayons
 
 using Clang
 
-function wrap(name, headers...; library="lib$name", defines=[])
+function wrap(name, headers...; wrapped_headers=headers, library="lib$name", defines=[])
     include_dirs = map(dir->joinpath(dir, "include"), find_toolkit())
     filter!(isdir, include_dirs)
 
@@ -32,7 +32,7 @@ function wrap(name, headers...; library="lib$name", defines=[])
                     common_file = common_file,
                     clang_includes = [include_dirs..., CLANG_INCLUDE],
                     clang_args = clang_args,
-                    header_wrapped = (root, current)->root == current,
+                    header_wrapped = (root, current)->any(header->endswith(current, header), wrapped_headers),
                     header_library = x->library,
                     clang_diagnostics = true,
                   )
@@ -436,8 +436,8 @@ function main()
         process(name, headers...; kwargs...)
     end
 
-    process_if_existing("cublas",
-                        "cublas_v2.h", "cublas_api.h", "cublasXt.h";
+    process_if_existing("cublas", "cublas_v2.h", "cublasXt.h";
+                        wrapped_headers=["cublas_v2.h", "cublas_api.h", "cublasXt.h"],
                         defines=["CUBLASAPI"=>""])
 
     process_if_existing("cufft", "cufft.h")
@@ -446,12 +446,13 @@ function main()
 
     process_if_existing("cusparse", "cusparse.h")
 
-    process_if_existing("cusolver",
-                        "cusolver_common.h", "cusolverDn.h", "cusolverSp.h")
+    process_if_existing("cusolver", "cusolverDn.h", "cusolverSp.h";
+                        wrapped_headers=["cusolver_common.h", "cusolverDn.h", "cusolverSp.h"])
 
     process_if_existing("cudnn", "cudnn.h")
 
-    process_if_existing("cutensor", "cutensor/types.h", "cutensor.h")
+    process_if_existing("cutensor", "cutensor.h";
+                        wrapped_headers=["cutensor.h", "cutensor/types.h"])
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
