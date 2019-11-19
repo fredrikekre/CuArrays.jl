@@ -33,15 +33,14 @@ mutable struct CuTensorDescriptor
         sz = collect(Int64, size)
         st = collect(Int64, strides)
         desc = Ref{cutensorTensorDescriptor_t}()
-        cutensorInitTensorDescriptor(desc, length(sz), sz, st,
+        cutensorInitTensorDescriptor(handle(), desc, length(sz), sz, st,
                                      cudaDataType(eltype), op)
         obj = new(desc)
-        finalizer(destroy!, obj)
         return obj
     end
 end
-#destroy!(obj::CuTensorDescriptor) = cutensorDestroyTensorDescriptor(obj.desc)
-Base.cconvert(::Type{cutensorTensorDescriptor_t}, obj::CuTensorDescriptor) = obj.desc
+
+Base.cconvert(::Type{Ptr{cutensorTensorDescriptor_t}}, obj::CuTensorDescriptor) = obj.desc
 
 function elementwiseTrinary!(
     alpha::Number, A::CuArray, Ainds::ModeType, opA::cutensorOperator_t,

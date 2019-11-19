@@ -49,7 +49,6 @@ function handle()
             context = active_context[]
             handle = Ref{cutensorHandle_t}()
             cutensorInit(handle)
-            atexit(()->CUDAdrv.isvalid(context))
             handle
         end
     end
