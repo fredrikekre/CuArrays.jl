@@ -59,6 +59,7 @@ function elementwiseTrinary!(
     descC = CuTensorDescriptor(C; op = opC)
     @assert size(C) == size(D) && strides(C) == strides(D)
     descD = descC # must currently be identical
+    #typeCompute = cudaDataType(T)
     typeCompute = cudaDataType(T)
     modeA = collect(Cint, Ainds)
     modeB = collect(Cint, Binds)
@@ -204,6 +205,7 @@ function contraction!(
     alpha::Number, A::CuArray, Ainds::ModeType, opA::cutensorOperator_t,
                    B::CuArray, Binds::ModeType, opB::cutensorOperator_t,
     beta::Number,  C::CuArray, Cinds::ModeType, opC::cutensorOperator_t,
+                                                opOut::cutensorOperator_t,
     pref::cutensorWorksizePreference_t=CUTENSOR_WORKSPACE_RECOMMENDED,
     algo::cutensorAlgo_t=CUTENSOR_ALGO_DEFAULT, stream::CuStream=CuDefaultStream())
 
@@ -216,35 +218,36 @@ function contraction!(
     descC = CuTensorDescriptor(C; op = opC)
     # for now, D must be identical to C (and thus, descD must be identical to descC)
     T = eltype(C)
-    typeCompute = CUTENSOR_R_MIN_64F #TODO cudaDataType(T)
+    computeType = cutensorComputeType(T) #CUTENSOR_R_MIN_64F #TODO cudaDataType(T)
     modeA = collect(Cint, Ainds)
     modeB = collect(Cint, Binds)
     modeC = collect(Cint, Cinds)
 
-    alignmentRequirementA #TODO init?
-    cutensorGetAlignmentRequirement(handle, A, descA, alignmentRequirementA)
-    alignmentRequirementB #TODO init?
-    cutensorGetAlignmentRequirement(handle, B, descB, alignmentRequirementB)
-    alignmentRequirementC #TODO init?
-    cutensorGetAlignmentRequirement(handle, C, descC, alignmentRequirementC)
+    alignmentRequirementA = Ref{UInt32}(C_NULL) #TODO init?
+    cutensorGetAlignmentRequirement(handle(), A, descA, alignmentRequirementA)
+    alignmentRequirementB = Ref{UInt32}(C_NULL) #TODO init?
+    cutensorGetAlignmentRequirement(handle(), B, descB, alignmentRequirementB)
+    alignmentRequirementC = Ref{UInt32}(C_NULL) #TODO init?
+    cutensorGetAlignmentRequirement(handle(), C, descC, alignmentRequirementC)
 
-    desc::cutensorContractionDescriptor_t #TODO init?
-    cutensorInitContractionDescriptor(handle,
-                   desc,
-                   descA, modeA, alignmentRequirementA,
-                   descB, modeB, alignmentRequirementB,
-                   descC, modeC, alignmentRequirementC,
-                   descC, modeC, alignmentRequirementC,
+    #desc = Ref{cutensorContractionDescriptor_t}(C_NULL) #TODO init?
+    desc = Ref{cutensorContractionDescriptor_t}(cutensorContractionDescriptor_t(ntuple(i->0,512))) #TODO init?
+    cutensorInitContractionDescriptor(handle(),
+                                      desc,
+                   descA, modeA, alignmentRequirementA[],
+                   descB, modeB, alignmentRequirementB[],
+                   descC, modeC, alignmentRequirementC[],
+                   descC, modeC, alignmentRequirementC[],
                    computeType)
 
-    find::cutensorContractionFind_t #TODO init?
-    cutensorInitContractionFind(handle, find, algo)
+    find = Ref{cutensorContractionFind_t}(cutensorContractionFind_t(ntuple(i->0,512))) #TODO init?
+    cutensorInitContractionFind(handle(), find, algo)
 
     workspaceSize = Ref{UInt64}(C_NULL)
-    cutensorContractionGetWorkspace(handle, desc, find, pref, workspaceSize)
+    cutensorContractionGetWorkspace(handle(), desc, find, pref, workspaceSize)
 
-    plan::cutensorContractionPlan_t #TODO init?
-    cutensorInitContractionPlan(handle, plan, desc, find, workspaceSize)
+    plan = Ref(cutensorContractionPlan_t(ntuple(i->0, 512))) #TODO init?
+    cutensorInitContractionPlan(handle(), desc, find, workspaceSize[], plan)
 
     workspace = CuArray{UInt8}(undef, 0)
     try
@@ -254,9 +257,9 @@ function contraction!(
     end
     workspaceSize[] = length(workspace)
 
-    cutensorContraction(handle, plan,
+    cutensorContraction(handle(), plan,
                         T[alpha], A, B,
-                        T[beta],  C, D,
+                        T[beta],  C, C,
                         workspace, workspaceSize[], stream)
     return C
 end
@@ -346,7 +349,7 @@ function reduction!(
     descC = CuTensorDescriptor(C; op = opC)
     # for now, D must be identical to C (and thus, descD must be identical to descC)
     T = eltype(C)
-    typeCompute = cudaDataType(T)
+    typeCompute = cutensorComputeType(T)
     modeA = collect(Cint, Ainds)
     modeC = collect(Cint, Cinds)
 
