@@ -27,6 +27,7 @@ allowscalar(false)
 end
 
 include("base.jl")
+include("memory.jl")
 include("blas.jl")
 include("rand.jl")
 include("fft.jl")
@@ -37,9 +38,6 @@ include("dnn.jl")
 include("tensor.jl")
 include("forwarddiff.jl")
 
-# allocator API
-CuArrays.reclaim(1024)
-CuArrays.reclaim()
 CuArrays.memory_status()
 CuArrays.pool_timings()
 CuArrays.alloc_timings()
