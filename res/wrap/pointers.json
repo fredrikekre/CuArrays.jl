@@ -16400,10 +16400,10 @@
     },
     "cutensorInitContractionPlan": {
         "handle": "Ptr",
+        "plan": "Ptr",
         "desc": "Ptr",
-        "find": "Ptr",
-        "workspaceSize": null,
-        "plan": "Ptr"
+        "find": null,
+        "workspaceSize": "Ptr"
     },
     "cutensorGetAlignmentRequirement": {
         "handle": "Ptr",

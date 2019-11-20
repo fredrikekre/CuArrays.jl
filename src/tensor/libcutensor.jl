@@ -86,12 +86,12 @@ function cutensorContractionGetWorkspace(handle, desc, find, pref, workspaceSize
                           handle, desc, find, pref, workspaceSize)
 end
 
-function cutensorInitContractionPlan(handle, desc, find, workspaceSize, plan)
+function cutensorInitContractionPlan(handle, plan, desc, find, workspaceSize)
     @check @runtime_ccall((:cutensorInitContractionPlan, libcutensor), cutensorStatus_t,
-                          (Ptr{cutensorHandle_t}, Ptr{cutensorContractionDescriptor_t},
-                           Ptr{cutensorContractionFind_t}, UInt64,
-                           Ptr{cutensorContractionPlan_t}),
-                          handle, desc, find, workspaceSize, plan)
+                          (Ptr{cutensorHandle_t}, Ptr{cutensorContractionPlan_t},
+                           Ptr{cutensorContractionDescriptor_t},
+                           Ptr{cutensorContractionFind_t}, UInt64),
+                          handle, plan, desc, find, workspaceSize)
 end
 
 function cutensorContraction(handle, plan, alpha, A, B, beta, C, D, workspace,

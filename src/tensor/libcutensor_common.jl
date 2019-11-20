@@ -1,8 +1,8 @@
 # Automatically generated using Clang.jl
 
 
-const CUTENSOR_MAJOR = 0
-const CUTENSOR_MINOR = 3
+const CUTENSOR_MAJOR = 1
+const CUTENSOR_MINOR = 0
 const CUTENSOR_PATCH = 0
 
 @cenum cutensorAlgo_t::Int32 begin
@@ -26,15 +26,6 @@ end
     CUTENSOR_OP_RCP = 10
     CUTENSOR_OP_SIGMOID = 11
     CUTENSOR_OP_TANH = 12
-    CUTENSOR_OP_ELU = 13
-    CUTENSOR_OP_LEAKY_RELU = 14
-    CUTENSOR_OP_CLIP = 15
-    CUTENSOR_OP_SOFT_PLUS = 16
-    CUTENSOR_OP_SOFT_SIGN = 17
-    CUTENSOR_OP_SELU = 18
-    CUTENSOR_OP_HARD_SIGMOID = 19
-    CUTENSOR_OP_SCALED_TANH = 20
-    CUTENSOR_OP_THRESHOLDED_RELU = 21
     CUTENSOR_OP_EXP = 22
     CUTENSOR_OP_LOG = 23
     CUTENSOR_OP_ABS = 24
@@ -56,7 +47,6 @@ end
     CUTENSOR_OP_MUL = 5
     CUTENSOR_OP_MAX = 6
     CUTENSOR_OP_MIN = 7
-    CUTENSOR_OP_ACTIVATION_WITH_QUANTIZATION = 39
     CUTENSOR_OP_UNKNOWN = 126
 end
 
@@ -96,17 +86,17 @@ struct cutensorHandle_t
 end
 
 struct cutensorTensorDescriptor_t
-    fields::NTuple{512, Int64}
+    fields::NTuple{64, Int64}
 end
 
 struct cutensorContractionDescriptor_t
-    fields::NTuple{512, Int64}
+    fields::NTuple{256, Int64}
 end
 
 struct cutensorContractionPlan_t
-    fields::NTuple{512, Int64}
+    fields::NTuple{640, Int64}
 end
 
 struct cutensorContractionFind_t
-    fields::NTuple{512, Int64}
+    fields::NTuple{64, Int64}
 end
